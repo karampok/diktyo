@@ -1,0 +1,5 @@
+1. Create plugins dir structure
+1. Add a "tag" to IPMasq to identify the chain
+1. Fix a solution to delete rules
+1. Test it
+1. Add a doc explaining how to run

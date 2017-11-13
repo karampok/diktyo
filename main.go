@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
 	"path/filepath"
 	"time"
@@ -17,6 +18,7 @@ import (
 type PluginConf struct {
 	types.NetConf
 	RuntimeConfig *struct {
+		MasqEntries []MasqEntry `json:"masqEntries,omitempty"`
 	} `json:"runtimeConfig,omitempty"`
 
 	RawPrevResult *map[string]interface{} `json:"prevResult"`
@@ -53,6 +55,12 @@ func parseConfig(stdin []byte) (*PluginConf, error) {
 		return nil, fmt.Errorf("debugDir must be specified")
 	}
 
+	for _, e := range conf.RuntimeConfig.MasqEntries {
+		if !e.Valid() {
+			return nil, fmt.Errorf("Invalid Masq entry")
+		}
+	}
+
 	return &conf, nil
 }
 
@@ -82,11 +90,55 @@ func cmdAdd(args *skel.CmdArgs) error {
 	}
 
 	cniDebug(conf.Debug, conf.DebugDir, args, "add")
+
+	//If first do nothing?
 	if conf.PrevResult == nil {
-		conf.PrevResult = &current.Result{}
+		return types.PrintResult(&current.Result{}, conf.CNIVersion)
+	}
+
+	for _, e := range conf.RuntimeConfig.MasqEntries {
+		ip, err := getContainerIP(conf.PrevResult, args)
+		if err != nil {
+			panic("untestedx")
+		}
+		if err := e.Apply(ip, "mymasq", "mycomment"); err != nil {
+			panic(err.Error())
+		}
 	}
 
 	return types.PrintResult(conf.PrevResult, conf.CNIVersion)
+}
+
+func applyMasqRules(rules, ip string) error {
+	return nil
+}
+
+func getContainerIP(c *current.Result, args *skel.CmdArgs) (net.IP, error) {
+	containerIPs := make([]net.IP, 0, len(c.IPs))
+	if c.CNIVersion != "0.3.0" {
+		for _, ip := range c.IPs {
+			containerIPs = append(containerIPs, ip.Address.IP)
+		}
+	} else {
+		for _, ip := range c.IPs {
+			if ip.Interface == nil {
+				continue
+			}
+			intIdx := *ip.Interface
+			// Every IP is indexed in to the interfaces array, with "-1" standing
+			// for an unknown interface (which we'll assume to be Container-side
+			// Skip all IPs we know belong to an interface with the wrong name.
+			if intIdx >= 0 && intIdx < len(c.Interfaces) && c.Interfaces[intIdx].Name != args.IfName {
+				continue
+			}
+			containerIPs = append(containerIPs, ip.Address.IP)
+		}
+	}
+	if len(containerIPs) == 0 {
+		return nil, fmt.Errorf("got no container IPs")
+	}
+
+	return containerIPs[0], nil
 }
 
 func cmdDel(args *skel.CmdArgs) error {
