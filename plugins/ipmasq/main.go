@@ -61,9 +61,8 @@ func cmdAdd(args *skel.CmdArgs) error {
 		return fmt.Errorf("failed to parse config: %v", err)
 	}
 
-	//TODO. fail
 	if conf.PrevResult == nil {
-		return types.PrintResult(&current.Result{}, conf.CNIVersion)
+		return fmt.Errorf("must be called as chained plugin")
 	}
 
 	for _, e := range conf.RuntimeConfig.MasqEntries {
