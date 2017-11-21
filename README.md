@@ -15,7 +15,7 @@ unset CNI_COMMAND CNI_IFNAME CNI_NETNS CNI_CONTAINERID
 export CNI_PATH=/opt/cni/bin
 export NETCONFPATH=/opt/cni/netconfs
 mkdir -p {$NETCONFPATH,$CNI_PATH}
-cp {cnitool,bridge,portmap,host-local,ipmasq,noop} $CNI_PATH
+cp $GOBIN/{cnitool,bridge,portmap,host-local,ipmasq,noop} $CNI_PATH
 ip netns add bob||true
 ```
 
@@ -70,6 +70,7 @@ EOF
 ```
 
 Container engine is expecting to insert entries through the runtime config
+(cni-tool does that through CAP_ARGS)
 
 ```
 export CAP_ARGS='{
@@ -104,7 +105,7 @@ export CAP_ARGS='{
 Finally
 ```
 cnitool add mycoolcnichain /var/run/netns/bob
-cat /tmp/net-debug/cnitool-XYZ/eth0/add_date.json | jq .
+#cat /tmp/net-debug/cnitool-XYZ/eth0/add_date.json | jq .
 iptables -nvL -t nat
 cnitool add mycoolcnichain /var/run/netns/bob
 ```
