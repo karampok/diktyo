@@ -10,12 +10,17 @@ import (
 
 type MasqEntry struct {
 	External    string `json:"external,omitempty"`
+	Destination string `json:"destination,omitempty"`
 	Protocol    string `json:"protocol"`
 	Description string `json:"description,omitempty"`
 }
 
 func (e MasqEntry) Valid() bool {
 	if e.External == "" {
+		return false
+	}
+
+	if e.Destination == "" {
 		return false
 	}
 	return true
@@ -33,7 +38,7 @@ func (e MasqEntry) Insert(ip net.IP, chain string, handle string) error {
 		return err
 	}
 	comment := strings.Replace(fmt.Sprintf("%s: %s", handle, e.Description), " ", "_", -1)
-	return ipt.AppendUnique("nat", chain, "-p", e.Protocol, "-s", ip.String(), "-j",
+	return ipt.AppendUnique("nat", chain, "-p", e.Protocol, "-d", e.Destination, "-s", ip.String(), "-j",
 		"SNAT", "--to", e.External, "-m", "comment", "--comment", comment)
 }
 

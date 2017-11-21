@@ -65,13 +65,19 @@ Runtime engine is expecting to insert entries through the runtime config
 export CAP_ARGS='{
     "masqEntries": [
         {
+            "external":      "10.0.2.15:5000-5010",
+            "destination":   "8.8.8.8/32",
+            "protocol":      "tcp",
+            "description":   "allow production traffic"
+        },
+        {
             "external":      "10.0.2.15:4000-4010",
+            "destination":   "0.0.0.0/0",
             "protocol":      "tcp",
             "description":   "allow production traffic"
         }
     ]
 }'
-
 ```
 
 

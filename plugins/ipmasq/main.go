@@ -67,6 +67,7 @@ func cmdAdd(args *skel.CmdArgs) error {
 	}
 
 	for _, e := range conf.RuntimeConfig.MasqEntries {
+		//TODO. sort masqs so 8.8.8.8/32, to be after 0.0.0.0
 		ip, err := getContainerIP(conf.PrevResult, args)
 		if err != nil {
 			panic("untestedx")
