@@ -10,7 +10,7 @@ unset CNI_COMMAND CNI_IFNAME CNI_NETNS CNI_CONTAINERID
 export CNI_PATH=/opt/cni/bin
 export NETCONFPATH=/opt/cni/netconfs
 mkdir -p {$NETCONFPATH,$CNI_PATH}
-cp {cnitool,bridge,host-local,ipmasq} $CNI_PATH
+cp $GOBIN/{cnitool,bridge,host-local,ipmasq} $CNI_PATH
 ip netns add bob||true
 ```
 
@@ -61,7 +61,7 @@ EOF
 
 
 Runtime engine is expecting to insert entries through the runtime config
-```
+```json
 export CAP_ARGS='{
     "masqEntries": [
         {

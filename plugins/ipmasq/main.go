@@ -46,6 +46,10 @@ func parseConfig(stdin []byte) (*PluginConf, error) {
 		}
 	}
 
+	if conf.RuntimeConfig == nil {
+		return &conf, nil
+	}
+
 	for _, e := range conf.RuntimeConfig.MasqEntries {
 		if !e.Valid() {
 			return nil, fmt.Errorf("Invalid Masq entry")
@@ -63,6 +67,9 @@ func cmdAdd(args *skel.CmdArgs) error {
 
 	if conf.PrevResult == nil {
 		return fmt.Errorf("must be called as chained plugin")
+	}
+	if conf.RuntimeConfig == nil || len(conf.RuntimeConfig.MasqEntries) == 0 {
+		return types.PrintResult(conf.PrevResult, conf.CNIVersion)
 	}
 
 	for _, e := range conf.RuntimeConfig.MasqEntries {
@@ -112,6 +119,11 @@ func cmdDel(args *skel.CmdArgs) error {
 	if err != nil {
 		return fmt.Errorf("failed to parse config: %v", err)
 	}
+
+	if conf.RuntimeConfig == nil || len(conf.RuntimeConfig.MasqEntries) == 0 {
+		return nil
+	}
+
 	for _, e := range conf.RuntimeConfig.MasqEntries {
 		if err := e.Delete(conf.Tag, args.ContainerID); err != nil {
 			panic(err.Error())
