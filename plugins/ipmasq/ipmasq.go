@@ -69,6 +69,34 @@ func (e MasqEntry) Delete(chain string, handle string) error {
 	return nil
 }
 
+func JustDelete(chain string, handle string) error {
+	ipt, err := iptables.NewWithProtocol(iptables.ProtocolIPv4)
+	if err != nil {
+		return fmt.Errorf("failed to locate iptables: %v", err)
+	}
+
+	if err := ensureChain(chain); err != nil {
+		return err
+	}
+
+	rules, err := ipt.List("nat", chain)
+	if err != nil {
+		return fmt.Errorf("unable to list the rules: %v", err)
+	}
+
+	for _, r := range rules {
+		m, s := getArgumentMap(r)
+		if strings.HasPrefix(m["--comment"], fmt.Sprintf("%s:", handle)) {
+			delete(m, "-A")
+			if err := ipt.Delete("nat", chain, s...); err != nil { //TODO. wrap errors
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func ensureChain(name string) error {
 	ipt, err := iptables.NewWithProtocol(iptables.ProtocolIPv4)
 	if err != nil {

@@ -121,7 +121,7 @@ func cmdDel(args *skel.CmdArgs) error {
 	}
 
 	if conf.RuntimeConfig == nil || len(conf.RuntimeConfig.MasqEntries) == 0 {
-		return nil
+		return JustDelete(conf.Tag, args.ContainerID)
 	}
 
 	for _, e := range conf.RuntimeConfig.MasqEntries {
