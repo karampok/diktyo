@@ -94,9 +94,9 @@ export CAP_ARGS='{
 Create two instances of containers
 
 ```
-export CNI_CONTAINERID=cake1 CNI_IFNAME=eth0
+export CNI_CONTAINERID=cake0 CNI_IFNAME=eth0
 cnitool add mycoolnet /var/run/netns/bob
-export CNI_CONTAINERID=cake2 CNI_IFNAME=eth1
+export CNI_CONTAINERID=cake1 CNI_IFNAME=eth1
 cnitool add mycoolnet /var/run/netns/bob
 dig @127.0.0.1 -p 8600 appX.service.consul
 ```
