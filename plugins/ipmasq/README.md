@@ -1,6 +1,6 @@
-### ipmasq plugin 
+### ipmasq plugin
 
-This plugin will modify the external traffic. 
+This plugin will modify the external traffic.
 It expects to be run as a chained plugin.
 
 //iptables -t nat -A POSTROUTING -p tcp -o eth0 -j SNAT --to 1.2.3.4:1-1023
@@ -20,12 +20,13 @@ the following configuration options:
 
 * `tag` - boolean, default true. If true or omitted,
 
-The plugin expects to receive the actual list of port mappings via the 
+The plugin expects to receive the actual list of port mappings via the
 `masqEntries` [capability argument](https://github.com/containernetworking/cni/blob/master/CONVENTIONS.md)
 
 
 So a sample standalone config list (with the file extension .conflist) might
 look like:
+
 ```json
 cat > $NETCONFPATH/chained.conflist <<EOF
 {
@@ -48,7 +49,7 @@ cat > $NETCONFPATH/chained.conflist <<EOF
         "dns": {
           "nameservers": [ "8.8.8.8" ]
         }
-    },    
+    },
     {
       "type":"ipmasq",
       "tag":"mycoolChain",
