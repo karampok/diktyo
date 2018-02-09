@@ -5,6 +5,8 @@ import (
 	"net"
 	"runtime"
 
+	"golang.org/x/sys/unix"
+
 	"github.com/containernetworking/plugins/pkg/ns"
 	"github.com/vishvananda/netlink"
 )
@@ -17,8 +19,8 @@ func init() {
 }
 
 type RouteEntry struct {
-	CDIR        string `json:"external,omitempty"`
-	Gateway     string `json:"destination,omitempty"`
+	Destination string `json:"destination,omitempty"`
+	Gateway     string `json:"gateway,omitempty"`
 	Description string `json:"description,omitempty"`
 }
 
@@ -26,16 +28,19 @@ func setupRoutes(netns ns.NetNS, routes []RouteEntry) error {
 
 	err := netns.Do(func(hostNS ns.NetNS) error {
 		for _, r := range routes {
+			_, dst, _ := net.ParseCIDR(r.Destination)
 			route := netlink.Route{
-				Dst: &net.IPNet{
-					IP:   net.ParseIP("192.0.2.1"),
-					Mask: net.CIDRMask(31, 32),
-				},
-				Scope: netlink.SCOPE_NOWHERE,
+				Dst: dst,
+			}
+
+			if r.Gateway == "drop" {
+				route.Type = unix.RTN_BLACKHOLE
+			} else {
+				route.Gw = net.ParseIP(r.Gateway)
 			}
 
 			if err := netlink.RouteAdd(&route); err != nil {
-				return fmt.Errorf("failed to add route %v: %v", r, err)
+				return fmt.Errorf("failed to add route %v: %v", dst, err)
 			}
 		}
 		return nil

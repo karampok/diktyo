@@ -21,16 +21,16 @@ look like:
 cat > $NETCONFPATH/chained.conflist <<EOF
 {
   "cniVersion": "0.3.1",
-  "name": "mycoolnet",
+  "name": "mynet",
   "plugins": [
      {
         "type": "bridge",
         "isGateway": true,
         "ipMasq": false,
-        "bridge": "mycoolbridge",
+        "bridge": "mybridge",
         "ipam": {
             "type": "host-local",
-            "subnet": "10.10.30.0/24",
+            "subnet": "10.10.0.0/16",
             "routes": [
                 { "dst": "0.0.0.0/0" }
             ],
@@ -49,17 +49,32 @@ cat > $NETCONFPATH/chained.conflist <<EOF
 EOF
 ```
 
-
 Runtime engine is expecting to insert entries through the runtime config
+
 ```json
 export CAP_ARGS='{
-    "RouteEntries": [
+    "routeEntries": [
         {
             "destination":   "8.8.8.8/32",
-            "gateway":      "drop"
+            "gateway":      "drop",
+            "description":   "do not access google dns server"
+        },
+        {
+            "destination":   "192.168.0.0/16",
+            "gateway":      "10.10.30.1",
+            "description":   "VPN traffic"
         }
-		]
+    ]
 }'
 ```
 
+```
+cnitool add mynet /var/run/netns/bob
 
+# $ ip netns exec bob ip r
+# default via 10.10.30.1 dev eth0
+# blackhole 8.8.0.0/16
+# blackhole 8.8.8.8
+# 10.10.30.0/24 dev eth0  proto kernel  scope link  src 10.10.30.13
+
+```
