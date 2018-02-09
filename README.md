@@ -1,10 +1,12 @@
 # Diktyo CNI plugin
 
-A collection of CNI plugins 
+A collection of CNI plugins
 
 ## Plugins
 
 * ipmasq
+* iproute
+* registerDNS
 * noop
 
 
@@ -44,12 +46,12 @@ cat > $NETCONFPATH/chained.conflist <<EOF
         "dns": {
           "nameservers": [ "8.8.8.8" ]
         }
-    },    
+    },
     {
       "type":"ipmasq",
       "tag":"CNI-SNAT-X",
       "capabilities": {"masqEntries": true}
-    },    
+    },
     {
       "type": "portmap",
       "capabilities": {"portMappings": true},
