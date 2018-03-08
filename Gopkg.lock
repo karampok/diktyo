@@ -1,46 +1,28 @@
-memo = "9ae2a37e8b0d06cc2e76f89c2d1fd0da3c7ebfad64583a8e61aa5767c0b10feb"
+memo = "4d77df5b03d6895d5ad7158dae9fa2b9ef61fc8d9e5454702c61dae12b97c3dc"
 
 [[projects]]
   branch = "master"
   name = "github.com/containernetworking/cni"
-  packages = ["pkg/invoke","pkg/skel","pkg/types","pkg/types/020","pkg/types/current","pkg/version"]
-  revision = "6cddc9a378215d15faa4302cc2474823c27eef2d"
+  packages = ["pkg/skel","pkg/types","pkg/types/020","pkg/types/current","pkg/version"]
+  revision = "a700ea864b5f1852d179ce83e8bc169f0b4a0ef4"
 
 [[projects]]
   name = "github.com/containernetworking/plugins"
-  packages = ["pkg/ip","pkg/ipam","pkg/ns","pkg/testutils","pkg/utils","pkg/utils/hwaddr"]
-  revision = "7480240de9749f9a0a5c8614b17f1f03e0c06ab9"
-  version = "v0.6.0"
+  packages = ["pkg/ns"]
+  revision = "dd8ff8a5cf537dcfc705e14a1465f82817869bf9"
+  version = "v0.7.0"
 
 [[projects]]
   name = "github.com/coreos/go-iptables"
   packages = ["iptables"]
-  revision = "259c8e6a4275d497442c721fa52204d7a58bde8b"
-  version = "v0.2.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/j-keck/arping"
-  packages = ["."]
-  revision = "2cf9dc699c5640a7e2c81403a44127bf28033600"
-
-[[projects]]
-  name = "github.com/onsi/ginkgo"
-  packages = [".","config","internal/codelocation","internal/containernode","internal/failer","internal/leafnodes","internal/remote","internal/spec","internal/spec_iterator","internal/specrunner","internal/suite","internal/testingtproxy","internal/writer","reporters","reporters/stenographer","reporters/stenographer/support/go-colorable","reporters/stenographer/support/go-isatty","types"]
-  revision = "9eda700730cba42af70d53180f9dcce9266bc2bc"
-  version = "v1.4.0"
-
-[[projects]]
-  name = "github.com/onsi/gomega"
-  packages = [".","format","internal/assertion","internal/asyncassertion","internal/oraclematcher","internal/testingtsupport","matchers","matchers/support/goraph/bipartitegraph","matchers/support/goraph/edge","matchers/support/goraph/node","matchers/support/goraph/util","types"]
-  revision = "003f63b7f4cff3fc95357005358af2de0f5fe152"
-  version = "v1.3.0"
+  revision = "b5b1876b170881a8259f036445ee89c8669db386"
+  version = "v0.3.0"
 
 [[projects]]
   branch = "master"
   name = "github.com/vishvananda/netlink"
   packages = [".","nl"]
-  revision = "d35d6b58e1cb692b27b94fc403170bf44058ac3e"
+  revision = "5236321576c0c97ab02c078e60f9b1c5c1828807"
 
 [[projects]]
   branch = "master"
@@ -50,24 +32,6 @@ memo = "9ae2a37e8b0d06cc2e76f89c2d1fd0da3c7ebfad64583a8e61aa5767c0b10feb"
 
 [[projects]]
   branch = "master"
-  name = "golang.org/x/net"
-  packages = ["html","html/atom","html/charset"]
-  revision = "f5dfe339be1d06f81b22525fe34671ee7d2c8904"
-
-[[projects]]
-  branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "37707fdb30a5b38865cfb95e5aab41707daec7fd"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/text"
-  packages = ["encoding","encoding/charmap","encoding/htmlindex","encoding/internal","encoding/internal/identifier","encoding/japanese","encoding/korean","encoding/simplifiedchinese","encoding/traditionalchinese","encoding/unicode","internal/gen","internal/tag","internal/utf8internal","language","runes","transform","unicode/cldr"]
-  revision = "4e4a3210bb54bb31f6ab2cdca2edcc0b50c420c1"
-
-[[projects]]
-  branch = "v2"
-  name = "gopkg.in/yaml.v2"
-  packages = ["."]
-  revision = "d670f9405373e636a5a2765eea47fac0c9bc91a4"
+  revision = "349b81fb5c64ec1734eb6ee148df25459ea48517"

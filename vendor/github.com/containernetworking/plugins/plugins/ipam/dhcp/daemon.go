@@ -39,8 +39,9 @@ const resendCount = 3
 var errNoMoreTries = errors.New("no more tries")
 
 type DHCP struct {
-	mux    sync.Mutex
-	leases map[string]*DHCPLease
+	mux             sync.Mutex
+	leases          map[string]*DHCPLease
+	hostNetnsPrefix string
 }
 
 func newDHCP() *DHCP {
@@ -58,7 +59,8 @@ func (d *DHCP) Allocate(args *skel.CmdArgs, result *current.Result) error {
 	}
 
 	clientID := args.ContainerID + "/" + conf.Name
-	l, err := AcquireLease(clientID, args.Netns, args.IfName)
+	hostNetns := d.hostNetnsPrefix + args.Netns
+	l, err := AcquireLease(clientID, hostNetns, args.IfName)
 	if err != nil {
 		return err
 	}
@@ -91,10 +93,10 @@ func (d *DHCP) Release(args *skel.CmdArgs, reply *struct{}) error {
 
 	if l := d.getLease(args.ContainerID, conf.Name); l != nil {
 		l.Stop()
-		return nil
+		d.clearLease(args.ContainerID, conf.Name)
 	}
 
-	return fmt.Errorf("lease not found: %v/%v", args.ContainerID, conf.Name)
+	return nil
 }
 
 func (d *DHCP) getLease(contID, netName string) *DHCPLease {
@@ -115,6 +117,14 @@ func (d *DHCP) setLease(contID, netName string, l *DHCPLease) {
 
 	// TODO(eyakubovich): hash it to avoid collisions
 	d.leases[contID+netName] = l
+}
+
+func (d *DHCP) clearLease(contID, netName string) {
+	d.mux.Lock()
+	defer d.mux.Unlock()
+
+	// TODO(eyakubovich): hash it to avoid collisions
+	delete(d.leases, contID+netName)
 }
 
 func getListener() (net.Listener, error) {
@@ -141,7 +151,7 @@ func getListener() (net.Listener, error) {
 	}
 }
 
-func runDaemon(pidfilePath string) error {
+func runDaemon(pidfilePath string, hostPrefix string) error {
 	// since other goroutines (on separate threads) will change namespaces,
 	// ensure the RPC server does not get scheduled onto those
 	runtime.LockOSThread()
@@ -162,6 +172,7 @@ func runDaemon(pidfilePath string) error {
 	}
 
 	dhcp := newDHCP()
+	dhcp.hostNetnsPrefix = hostPrefix
 	rpc.Register(dhcp)
 	rpc.HandleHTTP()
 	http.Serve(l, nil)

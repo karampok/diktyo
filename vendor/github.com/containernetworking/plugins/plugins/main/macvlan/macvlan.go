@@ -161,11 +161,28 @@ func cmdAdd(args *skel.CmdArgs) error {
 		return err
 	}
 
+	// Delete link if err to avoid link leak in this ns
+	defer func() {
+		if err != nil {
+			netns.Do(func(_ ns.NetNS) error {
+				return ip.DelLinkByName(args.IfName)
+			})
+		}
+	}()
+
 	// run the IPAM plugin and get back the config to apply
 	r, err := ipam.ExecAdd(n.IPAM.Type, args.StdinData)
 	if err != nil {
 		return err
 	}
+
+	// Invoke ipam del if err to avoid ip leak
+	defer func() {
+		if err != nil {
+			ipam.ExecDel(n.IPAM.Type, args.StdinData)
+		}
+	}()
+
 	// Convert whatever the IPAM result was into the current Result type
 	result, err := current.NewResultFromResult(r)
 	if err != nil {
@@ -226,7 +243,7 @@ func cmdDel(args *skel.CmdArgs) error {
 	// There is a netns so try to clean up. Delete can be called multiple times
 	// so don't return an error if the device is already removed.
 	err = ns.WithNetNSPath(args.Netns, func(_ ns.NetNS) error {
-		if _, err := ip.DelLinkByNameAddr(args.IfName, netlink.FAMILY_V4); err != nil {
+		if err := ip.DelLinkByName(args.IfName); err != nil {
 			if err != ip.ErrLinkNotFound {
 				return err
 			}
